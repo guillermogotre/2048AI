@@ -12,7 +12,8 @@ function sleep(ms) {
 IA.prototype.start = async function(cb){
     this.active = true;
     while(this.active && !this.gameManager.isGameTerminated()){
-        var mov = this.alphaBeta(this.gameManager.grid, 6, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, true);
+        var n = Math.floor(this.gameManager.grid.availableCells().length/4);
+        var mov = this.alphaBeta(this.gameManager.grid, 7-n, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, true, true);
         this.gameManager.move(mov);
         await sleep(100);
     }
@@ -34,7 +35,7 @@ IA.prototype.alphaBeta = function(node, depth, alpha, beta, maxPlayer, parent){
         return this.heuristic(node);
     }
     if (maxPlayer){
-        v = Number.NEGATIVE_INFINITY;
+        v = Number.MIN_SAFE_INTEGER;
         for(i=0; i<4; i++){
             child = this.createMovementNode(node,i);
             if(!this.isEqual(node,child)){
@@ -62,9 +63,10 @@ IA.prototype.alphaBeta = function(node, depth, alpha, beta, maxPlayer, parent){
         }
     }
     else{
-        v = Number.POSITIVE_INFINITY;
+        v = Number.MAX_SAFE_INTEGER;
         var emptyTiles = node.availableCells();
         for(i=0; i<emptyTiles.length; i++){
+        //for(i=emptyTiles.length-1; i>=0; i--){
             child = this.createAddNode(node,emptyTiles[i],2);
             children.push({
                 pos: i,
@@ -163,6 +165,9 @@ IA.prototype.heuristic = function(node){
 IA.prototype.heuristic = function(node){
     var sum = 0;
     var tsum;
+    if(this.terminal(node)){
+        return Number.MIN_SAFE_INTEGER + 1;
+    }
     node.eachCell(function(x,y,cell){
         if(cell) {
             tsum = 0;
@@ -178,7 +183,7 @@ IA.prototype.heuristic = function(node){
             if(node.withinBounds({x:x,y:y+1}) && node.cells[x][y+1]) {
                 tsum += Math.abs(cell.value - node.cells[x][y+1].value);
             }
-            sum += (cell.value * cell.value) - tsum;
+            sum += (cell.value * cell.value) - (tsum * tsum);
         }
     });
     return sum;
