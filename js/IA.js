@@ -162,6 +162,7 @@ IA.prototype.heuristic = function(node){
 };
 */
 
+/*
 IA.prototype.heuristic = function(node){
     var sum = 0;
     var tsum;
@@ -188,6 +189,41 @@ IA.prototype.heuristic = function(node){
     });
     return sum;
 };
+*/
+
+IA.prototype.heuristic = function(node){
+    var sum = 0;
+    var tsum;
+    var tmin;
+    if(this.terminal(node)){
+        return Number.MIN_SAFE_INTEGER + 1;
+    }
+    node.eachCell(function(x,y,cell){
+        if(cell) {
+            tsum = 0;
+            tmin = 0;
+            if(node.withinBounds({x:x-1,y:y}) && node.cells[x-1][y]) {
+                tmin += Math.abs(cell.value - node.cells[x-1][y].value);
+                tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x-1][y].value));
+            }
+            if(node.withinBounds({x:x+1,y:y}) && node.cells[x+1][y]) {
+                tmin += Math.abs(cell.value - node.cells[x+1][y].value);
+                tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x+1][y].value));
+            }
+            if(node.withinBounds({x:x,y:y-1}) && node.cells[x][y-1]) {
+                tmin += Math.abs(cell.value - node.cells[x][y-1].value);
+                tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x][y-1].value));
+            }
+            if(node.withinBounds({x:x,y:y+1}) && node.cells[x][y+1]) {
+                tmin += Math.abs(cell.value - node.cells[x][y+1].value);
+                tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x][y+1].value));
+            }
+            sum += (cell.value * cell.value) - (tsum * tsum) - tmin;
+        }
+    });
+    return sum;
+};
+
 
 IA.prototype.move = function(grid, direction){
     var cell, tile;
