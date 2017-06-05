@@ -4,7 +4,6 @@
     <list default="true" id="04669c11-68df-4c27-b988-87c78e38fcdd" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/IA.js" afterPath="$PROJECT_DIR$/js/IA.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/game_manager.js" afterPath="$PROJECT_DIR$/js/game_manager.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -25,8 +24,8 @@
       <file leaf-file-name="IA.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/IA.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-200">
-              <caret line="334" column="16" lean-forward="false" selection-start-line="334" selection-start-column="16" selection-end-line="334" selection-end-column="16" />
+            <state relative-caret-position="678">
+              <caret line="317" column="72" lean-forward="false" selection-start-line="317" selection-start-column="72" selection-end-line="317" selection-end-column="72" />
               <folding />
             </state>
           </provider>
@@ -56,7 +55,7 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="32">
-              <caret line="2" column="60" lean-forward="false" selection-start-line="2" selection-start-column="60" selection-end-line="2" selection-end-column="60" />
+              <caret line="3" column="60" lean-forward="false" selection-start-line="3" selection-start-column="60" selection-end-line="3" selection-end-column="60" />
               <folding />
             </state>
           </provider>
@@ -362,7 +361,7 @@
       <workItem from="1496611174846" duration="1286000" />
       <workItem from="1496612473255" duration="22699000" />
       <workItem from="1496655408990" duration="2551000" />
-      <workItem from="1496682059331" duration="8021000" />
+      <workItem from="1496682059331" duration="10483000" />
     </task>
     <task id="LOCAL-00001" summary="Heuristic Val+Dif">
       <created>1496665070219</created>
@@ -378,11 +377,18 @@
       <option name="project" value="LOCAL" />
       <updated>1496665215240</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Performance improvements">
+      <created>1496695314046</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1496695314046</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="34557000" />
+    <option name="totallyTimeSpent" value="37019000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -423,7 +429,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Heuristic Val+Dif" />
     <MESSAGE value="README" />
-    <option name="LAST_COMMIT_MESSAGE" value="README" />
+    <MESSAGE value="Performance improvements" />
+    <option name="LAST_COMMIT_MESSAGE" value="Performance improvements" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -542,7 +549,7 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="32">
-          <caret line="2" column="60" lean-forward="false" selection-start-line="2" selection-start-column="60" selection-end-line="2" selection-end-column="60" />
+          <caret line="3" column="60" lean-forward="false" selection-start-line="3" selection-start-column="60" selection-end-line="3" selection-end-column="60" />
           <folding />
         </state>
       </provider>
@@ -581,8 +588,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/IA.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-200">
-          <caret line="334" column="16" lean-forward="false" selection-start-line="334" selection-start-column="16" selection-end-line="334" selection-end-column="16" />
+        <state relative-caret-position="678">
+          <caret line="317" column="72" lean-forward="false" selection-start-line="317" selection-start-column="72" selection-end-line="317" selection-end-column="72" />
           <folding />
         </state>
       </provider>

@@ -64,6 +64,7 @@ IA.prototype.alphaBeta = function(node, depth, alpha, beta, maxPlayer, parent){
             }
         }
         if(parent){
+            console.log("Heuristic:",v);
             return children[childPos].pos;
         }else{
             return v;
@@ -240,6 +241,46 @@ IA.prototype.heuristic = function(node){
         this.setInCache(node,heu);
         return heu;
     }
+};
+*/
+
+/*
+IA.prototype.heuristic = function(node){
+    var heu = 0;
+    var tsum;
+    var tmin;
+    var cell;
+
+    if(this.terminal(node)){
+        return Number.MIN_SAFE_INTEGER + 1;
+    }
+    for(var x=0; x<this.gameManager.size; x++){
+        for(var y=0; y<this.gameManager.size; y++){
+            cell = node.cells[x][y];
+            if(cell) {
+                tsum = 0;
+                tmin = 0;
+                if (node.withinBounds({x: x - 1, y: y}) && node.cells[x - 1][y]) {
+                    tmin += Math.abs(cell.value - node.cells[x - 1][y].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x - 1][y].value));
+                }
+                if (node.withinBounds({x: x + 1, y: y}) && node.cells[x + 1][y]) {
+                    tmin += Math.abs(cell.value - node.cells[x + 1][y].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x + 1][y].value));
+                }
+                if (node.withinBounds({x: x, y: y - 1}) && node.cells[x][y - 1]) {
+                    tmin += Math.abs(cell.value - node.cells[x][y - 1].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x][y - 1].value));
+                }
+                if (node.withinBounds({x: x, y: y + 1}) && node.cells[x][y + 1]) {
+                    tmin += Math.abs(cell.value - node.cells[x][y + 1].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x][y + 1].value));
+                }
+                heu += (cell.value * cell.value) - (tsum * tsum) - tmin;
+            }
+        }
+    }
+    return heu;
 };
 */
 
