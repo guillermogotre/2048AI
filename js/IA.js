@@ -3,6 +3,8 @@
 function IA(gameManager){
     this.gameManager = gameManager;
     this.active = false;
+    this.cache = {};
+    this.cacheKeys = [];
 }
 
 function sleep(ms) {
@@ -15,9 +17,11 @@ IA.prototype.start = async function(cb){
         var n = Math.floor(this.gameManager.grid.availableCells().length/4);
         var mov = this.alphaBeta(this.gameManager.grid, 7-n, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, true, true);
         this.gameManager.move(mov);
-        await sleep(100);
+        await sleep(50);
     }
     cb();
+    this.cache = {};
+    this.cacheKeys = [];
     this.active = false;
 };
 
@@ -34,7 +38,10 @@ IA.prototype.alphaBeta = function(node, depth, alpha, beta, maxPlayer, parent){
     if(depth === 0 || this.terminal(node)){
         return this.heuristic(node);
     }
-    if (maxPlayer){
+    if(depth === 0) {
+        return this.heuristic(node);
+    }
+    else if (maxPlayer){
         v = Number.MIN_SAFE_INTEGER;
         for(i=0; i<4; i++){
             child = this.createMovementNode(node,i);
@@ -91,24 +98,21 @@ IA.prototype.alphaBeta = function(node, depth, alpha, beta, maxPlayer, parent){
 };
 
 IA.prototype.compare = function(nodeA, nodeB){
-    var hA = (function(node){
-        var sum = 0;
-        node.eachCell(function(x,y,cell){
+    var hA=0;
+    var hB=0;
+    var cell;
+    for(var x=0; x < 4; x++){
+        for(var y=0; y < 4; y++){
+            cell = nodeA.node.cells[x][y];
             if(cell) {
-                sum += (cell.value * cell.value);
+                hA += (cell.value * cell.value);
             }
-        });
-        return sum;
-    })(nodeA.node);
-    var hB = (function(node){
-        var sum = 0;
-        node.eachCell(function(x,y,cell){
+            cell = nodeB.node.cells[x][y];
             if(cell) {
-                sum += (cell.value * cell.value);
+                hB += (cell.value * cell.value);
             }
-        });
-        return sum;
-    })(nodeB.node);
+        }
+    }
     if(hA < hB) {
         return -1;
     }else if(hB > hA){
@@ -118,34 +122,42 @@ IA.prototype.compare = function(nodeA, nodeB){
     }
 };
 
-IA.prototype.terminal = function(node){
-    var self = this;
-    var c1 = node.cellsAvailable();
-    var c2 = (function () {
-        var tile;
-
-        for (var x = 0; x < self.gameManager.size; x++) {
-            for (var y = 0; y < self.gameManager.size; y++) {
-                tile = node.cellContent({ x: x, y: y });
-
-                if (tile) {
-                    for (var direction = 0; direction < 4; direction++) {
-                        var vector = self.gameManager.getVector(direction);
-                        var cell   = { x: x + vector.x, y: y + vector.y };
-
-                        var other  = node.cellContent(cell);
-
-                        if (other && other.value === tile.value) {
-                            return true; // These two tiles can be merged
-                        }
-                    }
-                }
+IA.prototype.createCompare = function(self){
+    return(
+        function(nodeA, nodeB){
+            var hA = self.heuristic(nodeA.node);
+            var hB = self.heuristic(nodeB.node);
+            if(hA < hB) {
+                return -1;
+            }else if(hB > hA){
+                return 1;
+            }else {
+                return 0;
             }
         }
-        return false;
-    })();
+    );
+};
 
-    return !(c1 || c2);
+IA.prototype.terminal = function(node){
+    var cell;
+    for (var i=0; i< this.gameManager.size; i++){
+        for(var j=0; j< this.gameManager.size; j++){
+            cell = node.cells[i][j];
+            if(!cell){
+                return false;
+            }else{
+                if(node.withinBounds({x:i-1,y:j}) && node.cells[i-1][j] && (node.cells[i-1][j].value === cell.value)){
+                    return false;                }
+                if(node.withinBounds({x:i+1,y:j}) && node.cells[i+1][j] && (node.cells[i+1][j].value === cell.value)) {
+                    return false;                }
+                if(node.withinBounds({x:i,y:j-1}) && node.cells[i][j-1] && (node.cells[i][j-1].value === cell.value)) {
+                    return false;                }
+                if(node.withinBounds({x:i,y:j+1}) && node.cells[i][j+1] && (node.cells[i][j+1].value === cell.value)) {
+                    return false;                }
+            }
+        }
+    }
+    return true;
 };
 
 /*
@@ -190,38 +202,83 @@ IA.prototype.heuristic = function(node){
     return sum;
 };
 */
+/*
+IA.prototype.heuristic = function(node){
+    var heu = this.getFromCache(node);
+    if(heu){
+        return heu;
+    }else{
+        heu = 0;
+        var tsum;
+        var tmin;
+        if(this.terminal(node)){
+            return Number.MIN_SAFE_INTEGER + 1;
+        }
+        node.eachCell(function(x,y,cell){
+            if(cell) {
+                tsum = 0;
+                tmin = 0;
+                if(node.withinBounds({x:x-1,y:y}) && node.cells[x-1][y]) {
+                    tmin += Math.abs(cell.value - node.cells[x-1][y].value);
+                    tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x-1][y].value));
+                }
+                if(node.withinBounds({x:x+1,y:y}) && node.cells[x+1][y]) {
+                    tmin += Math.abs(cell.value - node.cells[x+1][y].value);
+                    tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x+1][y].value));
+                }
+                if(node.withinBounds({x:x,y:y-1}) && node.cells[x][y-1]) {
+                    tmin += Math.abs(cell.value - node.cells[x][y-1].value);
+                    tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x][y-1].value));
+                }
+                if(node.withinBounds({x:x,y:y+1}) && node.cells[x][y+1]) {
+                    tmin += Math.abs(cell.value - node.cells[x][y+1].value);
+                    tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x][y+1].value));
+                }
+                heu += (cell.value * cell.value) - (tsum * tsum) - tmin;
+            }
+        });
+        this.setInCache(node,heu);
+        return heu;
+    }
+};
+*/
 
 IA.prototype.heuristic = function(node){
-    var sum = 0;
+    var heu = 0;
     var tsum;
     var tmin;
+    var cell;
+
     if(this.terminal(node)){
         return Number.MIN_SAFE_INTEGER + 1;
     }
-    node.eachCell(function(x,y,cell){
-        if(cell) {
-            tsum = 0;
-            tmin = 0;
-            if(node.withinBounds({x:x-1,y:y}) && node.cells[x-1][y]) {
-                tmin += Math.abs(cell.value - node.cells[x-1][y].value);
-                tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x-1][y].value));
+    for(var x=0; x<this.gameManager.size; x++){
+        for(var y=0; y<this.gameManager.size; y++){
+            cell = node.cells[x][y];
+            if(cell) {
+                tsum = 0;
+                tmin = 0;
+                if (node.withinBounds({x: x - 1, y: y}) && node.cells[x - 1][y]) {
+                    tmin += Math.abs(cell.value - node.cells[x - 1][y].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x - 1][y].value));
+                }
+                if (node.withinBounds({x: x + 1, y: y}) && node.cells[x + 1][y]) {
+                    tmin += Math.abs(cell.value - node.cells[x + 1][y].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x + 1][y].value));
+                }
+                if (node.withinBounds({x: x, y: y - 1}) && node.cells[x][y - 1]) {
+                    tmin += Math.abs(cell.value - node.cells[x][y - 1].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x][y - 1].value));
+                }
+                if (node.withinBounds({x: x, y: y + 1}) && node.cells[x][y + 1]) {
+                    tmin += Math.abs(cell.value - node.cells[x][y + 1].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x][y + 1].value));
+                }
+                heu += (cell.value * cell.value) - (tsum * tsum) - tmin;
             }
-            if(node.withinBounds({x:x+1,y:y}) && node.cells[x+1][y]) {
-                tmin += Math.abs(cell.value - node.cells[x+1][y].value);
-                tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x+1][y].value));
-            }
-            if(node.withinBounds({x:x,y:y-1}) && node.cells[x][y-1]) {
-                tmin += Math.abs(cell.value - node.cells[x][y-1].value);
-                tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x][y-1].value));
-            }
-            if(node.withinBounds({x:x,y:y+1}) && node.cells[x][y+1]) {
-                tmin += Math.abs(cell.value - node.cells[x][y+1].value);
-                tsum = Math.min(tsum,Math.abs(cell.value - node.cells[x][y+1].value));
-            }
-            sum += (cell.value * cell.value) - (tsum * tsum) - tmin;
         }
-    });
-    return sum;
+    }
+    return heu;
 };
 
 
@@ -332,3 +389,31 @@ IA.prototype.createAddNode = function(parent, pos, val){
 IA.prototype.isEqual = function(nodeA, nodeB){
     return JSON.stringify(nodeA.serialize()) === JSON.stringify(nodeB.serialize());
 };
+
+IA.prototype.getFromCache = function(node){
+    var key = this.makeKey(node);
+    return this.cache[key];
+};
+
+IA.prototype.setInCache = function(node,val){
+    var key = this.makeKey(node);
+    if(this.cacheKeys.length > 100){
+        delete this.cache[this.cacheKeys.shift()];
+    }
+    this.cacheKeys.push(key);
+    this.cache[key] = val;
+};
+
+IA.prototype.makeKey = function(node){
+    var key = "";
+    node.eachCell(function(x,y,tile){
+        if(tile){
+            key += tile.value;
+        }
+        else{
+            key += "0";
+        }
+        key += "_";
+    });
+    return key;
+}

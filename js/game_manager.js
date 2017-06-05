@@ -10,6 +10,12 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
+  this.map = {
+      0: { x: 0,  y: -1 }, // Up
+      1: { x: 1,  y: 0 },  // Right
+      2: { x: 0,  y: 1 },  // Down
+      3: { x: -1, y: 0 }   // Left
+  };
   this.setup();
 }
 
@@ -193,14 +199,7 @@ GameManager.prototype.move = function (direction) {
 // Get the vector representing the chosen direction
 GameManager.prototype.getVector = function (direction) {
   // Vectors representing tile movement
-  var map = {
-    0: { x: 0,  y: -1 }, // Up
-    1: { x: 1,  y: 0 },  // Right
-    2: { x: 0,  y: 1 },  // Down
-    3: { x: -1, y: 0 }   // Left
-  };
-
-  return map[direction];
+  return this.map[direction];
 };
 
 // Build a list of positions to traverse in the right order
