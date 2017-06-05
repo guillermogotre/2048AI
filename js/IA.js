@@ -183,7 +183,7 @@ IA.prototype.heuristic = function(node){
             if(node.withinBounds({x:x,y:y+1}) && node.cells[x][y+1]) {
                 tsum += Math.abs(cell.value - node.cells[x][y+1].value);
             }
-            sum += (cell.value * cell.value) - (tsum * tsum);
+            sum += (cell.value * cell.value) - tsum;
         }
     });
     return sum;
