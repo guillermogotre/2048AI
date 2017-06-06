@@ -244,7 +244,7 @@ IA.prototype.heuristic = function(node){
 };
 */
 
-
+/*
 IA.prototype.heuristic = function(node){
     var heu = 0;
     var tsum;
@@ -298,7 +298,81 @@ IA.prototype.heuristic = function(node){
                 if (node.withinBounds({x: x, y: y + 1}) && node.cells[x][y + 1]) {
                     colCells += 1;
                     if(node.cells[x][y+1].value>nextCellValue){
+                        nextCell.x = x;
+                        nextCell.y = y+1;
+                        nextCellValue = node.cells[x][y+1].value;
+                    }
+                    tmin += Math.abs(cell.value - node.cells[x][y + 1].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x][y + 1].value));
+                }
+                //heu += (cell.value * cell.value) - (tsum * tsum) - tmin;
+                if(colCells > 0) {
+                    //heu += ((cell.value * Math.max(nextCellValue, 1)) * emptyCells - ((tmin / colCells) * (tmin / colCells)));
+                    heu += ((cell.value * Math.max(nextCellValue, 1)) * emptyCells);
+                }
+                else {
+                    heu += (cell.value * Math.max(nextCellValue, 1)) * emptyCells;
+                }
+            }
+        }
+    }
+    return heu;
+};
+*/
+IA.prototype.heuristic = function(node){
+    var heu = 0;
+    var tsum;
+    var tmin;
+    var cell;
+    var nextCell = {x:0, y:0};
+    var nextCellValue = 0;
+    var emptyCells = 16;
+    var colCells;
+    if(this.terminal(node)){
+        return Number.MIN_SAFE_INTEGER + 1;
+    }
+    for(var x=0; x<this.gameManager.size; x++){
+        for(var y=0; y<this.gameManager.size; y++){
+            cell = node.cells[x][y];
+            colCells = 0;
+            if(cell) {
+                emptyCells -= 1;
+                tsum = 0;
+                tmin = 0;
+                if (node.withinBounds({x: x - 1, y: y}) && node.cells[x - 1][y]) {
+                    colCells += 1;
+                    if(node.cells[x-1][y].value>nextCellValue){
                         nextCell.x = x-1;
+                        nextCell.y = y;
+                        nextCellValue = node.cells[x-1][y].value;
+                    }
+                    tmin += Math.abs(cell.value - node.cells[x - 1][y].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x - 1][y].value));
+                }
+                if (node.withinBounds({x: x + 1, y: y}) && node.cells[x + 1][y]) {
+                    colCells += 1;
+                    if(node.cells[x+1][y].value>nextCellValue){
+                        nextCell.x = x+1;
+                        nextCell.y = y;
+                        nextCellValue = node.cells[x+1][y].value;
+                    }
+                    tmin += Math.abs(cell.value - node.cells[x + 1][y].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x + 1][y].value));
+                }
+                if (node.withinBounds({x: x, y: y - 1}) && node.cells[x][y - 1]) {
+                    colCells += 1;
+                    if(node.cells[x][y-1].value>nextCellValue){
+                        nextCell.x = x;
+                        nextCell.y = y-1;
+                        nextCellValue = node.cells[x][y-1].value;
+                    }
+                    tmin += Math.abs(cell.value - node.cells[x][y - 1].value);
+                    tsum = Math.min(tsum, Math.abs(cell.value - node.cells[x][y - 1].value));
+                }
+                if (node.withinBounds({x: x, y: y + 1}) && node.cells[x][y + 1]) {
+                    colCells += 1;
+                    if(node.cells[x][y+1].value>nextCellValue){
+                        nextCell.x = x;
                         nextCell.y = y+1;
                         nextCellValue = node.cells[x][y+1].value;
                     }
