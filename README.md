@@ -5,5 +5,5 @@ A dirty script using an heuristic guided alpha-beta pruning algorithm over the o
 
 
 ## License
-2048 AI is licensed under the [MIT license.](https://github.com/gabrielecirulli/2048/blob/master/LICENSE.txt)
+2048 AI is licensed under the [MIT license.](https://github.com/guillermogotre/2048AI/blob/master/LICENSE.txt)
 
